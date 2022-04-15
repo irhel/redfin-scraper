@@ -1,2 +1,4 @@
-# redfin-scraper
-Scraping real estate data from Redfin
+# Redfin Scraper
+
+Apify actor that scrapes real-estate data from Redfin.
+
