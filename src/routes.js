@@ -4,6 +4,8 @@ const { selectors } = require('./const');
 
 const { utils: { puppeteer, log } } = Apify;
 
+let totalPropertiesScraped = 0;
+
 const createAbsoluteUrl = (relativeUrl) => {
     return `https://www.redfin.com/${relativeUrl}`;
 };
@@ -16,7 +18,6 @@ const addUrlsToRequestQueue = async (urls, label, requestQueue) => {
     }
 };
 exports.handleStart = async ({ page }, requestQueue, location) => {
-    log.info('On the starting page');
     try {
         await page.type(selectors.INPUT_BOX, location);
         await page.click(selectors.SEARCH_BUTTON);
@@ -48,8 +49,12 @@ exports.handlePropertyListings = async ({ page }, requestQueue) => {
     }
 };
 
-exports.handleProperty = async ({ page }) => {
+exports.handleProperty = async ({ page }, maxItems) => {
     log.info('Will deal with property');
+    if (totalPropertiesScraped === maxItems) {
+        log.info(`Scraped ${maxItems} number of properties. Exiting gracefully.`);
+        process.exit();
+    } else totalPropertiesScraped++;
     await puppeteer.injectJQuery(page);
     const propertyData = await page.evaluate((price, beds, baths, squareFooatage, addionalInfo) => {
         const extraInfo = $(addionalInfo).map((index, element) => $(element).text()).get();
