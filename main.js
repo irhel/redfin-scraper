@@ -24,7 +24,6 @@ Apify.main(async () => {
         sessionPoolOptions: {
             maxPoolSize: 100
         },
-        maxConcurrency: 5,
         launchContext,
         handlePageFunction: async (context) => {
             const { url, userData: { label } } = context.request;

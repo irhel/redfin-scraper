@@ -15,7 +15,7 @@ const addUrlsToRequestQueue = async (urls, label, requestQueue) => {
         });
     }
 };
-exports.handleStart = async ({ request, page }, requestQueue, location) => {
+exports.handleStart = async ({ page }, requestQueue, location) => {
     log.info('On the starting page');
     try {
         await page.type(selectors.INPUT_BOX, location);
@@ -34,7 +34,7 @@ exports.handleStart = async ({ request, page }, requestQueue, location) => {
     }
 };
 
-exports.handlePropertyListings = async ({ request, page }, requestQueue) => {
+exports.handlePropertyListings = async ({ page }, requestQueue) => {
     try {
         await page.waitForSelector('.HomeViews');
         await puppeteer.injectJQuery(page);
@@ -48,17 +48,32 @@ exports.handlePropertyListings = async ({ request, page }, requestQueue) => {
     }
 };
 
-exports.handleProperty = async ({ request, page }) => {
+exports.handleProperty = async ({ page }) => {
     log.info('Will deal with property');
     await puppeteer.injectJQuery(page);
-    const propertyData = await page.evaluate((price, beds, baths, squareFooatage) => {
+    const propertyData = await page.evaluate((price, beds, baths, squareFooatage, addionalInfo) => {
+        const extraInfo = $(addionalInfo).map((index, element) => $(element).text()).get();
         return {
             propertyPrice: $(price).text(),
             propertyBeds: $(beds).text(),
             propertyBaths: $(baths).text(),
             propertySquareFootage: $(squareFooatage).text(),
+            status: extraInfo[0],
+            timeOnRedFin: extraInfo[1],
+            propertyType: extraInfo[2],
+            hoaDues: extraInfo[3],
+            yearBuild: extraInfo[4],
+            style: extraInfo[5],
+            community: extraInfo[6],
+            mls: extraInfo[7],
+            listedPrice: extraInfo[8],
+            estMoPayment: extraInfo[9],
+            redfinEstimate: extraInfo[10],
+            pricePerSquareFoot: extraInfo[11],
+            buyersAgentCommission: extraInfo[12],
         };
-    }, selectors.PROPERTY_PRICE, selectors.PROPERTY_BEDS, selectors.PROPERTY_BATHS, selectors.PROPERTY_SQUARE_FOOTAGE);
+    }, selectors.PROPERTY_PRICE, selectors.PROPERTY_BEDS, selectors.PROPERTY_BATHS,
+    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO);
     log.info('Property data that was extracted:', propertyData);
     await Apify.pushData(propertyData);
 };

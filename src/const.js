@@ -7,6 +7,7 @@ const selectors = {
     PROPERTY_BEDS: 'div[data-rf-test-id="abp-beds"] .statsValue',
     PROPERTY_BATHS: 'div[data-rf-test-id="abp-baths"] .statsValue',
     PROPERTY_SQUARE_FOOTAGE: 'div[data-rf-test-id="abp-sqFt"] .statsValue',
+    PROPERTY_ADDITIONAL_INFO: '.house-info .keyDetail .content',
 
     PROPERTY_LISTING: 'a.goToPage',
 };
