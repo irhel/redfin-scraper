@@ -50,8 +50,7 @@ exports.handlePropertyListings = async ({ page }, requestQueue) => {
 };
 
 exports.handleProperty = async ({ page }, maxItems) => {
-    log.info('Will deal with property');
-    if (totalPropertiesScraped === maxItems) {
+    if (totalPropertiesScraped === maxItems && maxItems !== 0) {
         log.info(`Scraped ${maxItems} number of properties. Exiting gracefully.`);
         process.exit();
     } else totalPropertiesScraped++;
@@ -67,7 +66,7 @@ exports.handleProperty = async ({ page }, maxItems) => {
             timeOnRedFin: extraInfo[1],
             propertyType: extraInfo[2],
             hoaDues: extraInfo[3],
-            yearBuild: extraInfo[4],
+            yearBuilt: extraInfo[4],
             style: extraInfo[5],
             community: extraInfo[6],
             mls: extraInfo[7],
