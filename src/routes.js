@@ -52,10 +52,10 @@ exports.handlePropertyListings = async ({ page }, requestQueue) => {
 exports.handleProperty = async ({ page }, maxItems) => {
     if (totalPropertiesScraped === maxItems && maxItems !== 0) {
         log.info(`Scraped ${maxItems} number of properties. Exiting gracefully.`);
-        process.exit();
-    } else totalPropertiesScraped++;
+        process.exit(1);
+    }
     await puppeteer.injectJQuery(page);
-    const propertyData = await page.evaluate((price, beds, baths, squareFooatage, addionalInfo) => {
+    const propertyData = (await page.evaluate((price, beds, baths, squareFooatage, addionalInfo) => {
         const extraInfo = $(addionalInfo).map((index, element) => $(element).text()).get();
         return {
             propertyPrice: $(price).text(),
@@ -77,7 +77,11 @@ exports.handleProperty = async ({ page }, maxItems) => {
             buyersAgentCommission: extraInfo[12],
         };
     }, selectors.PROPERTY_PRICE, selectors.PROPERTY_BEDS, selectors.PROPERTY_BATHS,
-    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO);
-    log.info('Property data that was extracted:', propertyData);
-    await Apify.pushData(propertyData);
+    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO));
+    // Ignore empty lots
+    if (propertyData.buyersAgentCommission) {
+        await Apify.pushData(propertyData);
+        log.info('Property data that was extracted:', propertyData);
+        totalPropertiesScraped++;
+    }
 };
