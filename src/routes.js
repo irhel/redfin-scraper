@@ -1,3 +1,4 @@
+const { AutoscaledPool } = require('apify');
 const Apify = require('apify');
 
 const { selectors } = require('./const');
@@ -52,7 +53,7 @@ exports.handlePropertyListings = async ({ page }, requestQueue) => {
 exports.handleProperty = async ({ page }, maxItems) => {
     if (totalPropertiesScraped === maxItems && maxItems !== 0) {
         log.info(`Scraped ${maxItems} number of properties. Exiting gracefully.`);
-        process.exit(1);
+        await AutoscaledPool.abort();
     }
     await puppeteer.injectJQuery(page);
     const propertyData = (await page.evaluate((price, beds, baths, squareFooatage, addionalInfoHeaders, additionalInfoContent) => {
