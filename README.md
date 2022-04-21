@@ -20,23 +20,22 @@ The output of the Actor is a JSON object that will get stored in the default dat
 
 ```
 {
-  "propertyPrice": "$689,900",
-  "propertyBeds": "4",
+  "propertyPrice": "$665,000",
+  "propertyBeds": "3",
   "propertyBaths": "2.5",
-  "propertySquareFootage": "2,000",
-  "status": "Active",
-  "timeOnRedFin": "33 hours",
-  "propertyType": "Townhouse",
-  "hoaDues": "1920",
-  "yearBuild": "1915",
-  "style": "FAIRMOUNT",
-  "community": "Newtown",
-  "mls": "PAPH2105402",
-  "listedPrice": "$689,900",
-  "estMoPayment": "$3,807",
-  "redfinEstimate": "$688,944",
-  "pricePerSquareFoot": "$345",
-  "buyersAgentCommission": "2.5%"
+  "propertySquareFootage": "2,169",
+  "Status": "Contingent",
+  "Time on Redfin": "7 days",
+  "Property Type": "Townhouse",
+  "HOA Dues": "$37/month",
+  "Year Built": "2017",
+  "Style": "Straight Thru",
+  "Community": "OLDE KENSINGTON",
+  "Lot Size": "1,821 Sq. Ft.",
+  "MLS#": "PAPH2104404",
+  "Est. Mo. Payment": "$3,321",
+  "Price/Sq.Ft.": "$307",
+  "Buyer's Agent Commission": "2.5%"
 }
 ```
 

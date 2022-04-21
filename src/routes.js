@@ -7,7 +7,7 @@ const { utils: { puppeteer, log } } = Apify;
 let totalPropertiesScraped = 0;
 
 const createAbsoluteUrl = (relativeUrl) => {
-    return `https://www.redfin.com/${relativeUrl}`;
+    return `https://www.redfin.com${relativeUrl}`;
 };
 const addUrlsToRequestQueue = async (urls, label, requestQueue) => {
     for (const url of urls) {
@@ -55,33 +55,24 @@ exports.handleProperty = async ({ page }, maxItems) => {
         process.exit(1);
     }
     await puppeteer.injectJQuery(page);
-    const propertyData = (await page.evaluate((price, beds, baths, squareFooatage, addionalInfo) => {
-        const extraInfo = $(addionalInfo).map((index, element) => $(element).text()).get();
-        return {
+    const propertyData = (await page.evaluate((price, beds, baths, squareFooatage, addionalInfoHeaders, additionalInfoContent) => {
+        const extraInfoHeaders = $(addionalInfoHeaders).map((index, element) => $(element).text()).get();
+        const extraInfoContent = $(additionalInfoContent).map((index, element) => $(element).text()).get();
+        const preparedPropertyData = {
             propertyPrice: $(price).text(),
             propertyBeds: $(beds).text(),
             propertyBaths: $(baths).text(),
             propertySquareFootage: $(squareFooatage).text(),
-            status: extraInfo[0],
-            timeOnRedFin: extraInfo[1],
-            propertyType: extraInfo[2],
-            yearBuilt: extraInfo[3],
-            style: extraInfo[4],
-            community: extraInfo[5],
-            lotSize: extraInfo[6],
-            mls: extraInfo[7],
-            listedPrice: extraInfo[8],
-            estMoPayment: extraInfo[9],
-            redfinEstimate: extraInfo[10],
-            pricePerSquareFoot: extraInfo[11],
-            buyersAgentCommission: extraInfo[12],
         };
+        for (let i = 0; i < extraInfoHeaders.length; i++) {
+            preparedPropertyData[[extraInfoHeaders[i]]] = extraInfoContent[i];
+        }
+        return preparedPropertyData;
     }, selectors.PROPERTY_PRICE, selectors.PROPERTY_BEDS, selectors.PROPERTY_BATHS,
-    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO));
+    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO_HEADERS, selectors.PROPERTY_ADDITIONAL_INFO_CONTENT));
     // Ignore empty lots
-    if (propertyData.buyersAgentCommission) {
-        await Apify.pushData(propertyData);
-        log.info('Property data that was extracted:', propertyData);
-        totalPropertiesScraped++;
-    }
+
+    await Apify.pushData(propertyData);
+    log.info('Property data that was extracted:', propertyData);
+    totalPropertiesScraped++;
 };
