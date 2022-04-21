@@ -5,12 +5,11 @@ const { handleStart, handleProperty, handlePropertyListings } = require('./src/r
 const { utils: { log } } = Apify;
 
 Apify.main(async () => {
-
-    const requestList = await Apify.openRequestList('start-urls', [{url: 'https://www.redfin.com/'}]);
+    const requestList = await Apify.openRequestList('start-urls', [{ url: 'https://www.redfin.com/' }]);
     const requestQueue = await Apify.openRequestQueue();
-    
-    const {location, maxItems} = await Apify.getInput();
-    
+
+    const { location, maxItems } = await Apify.getInput();
+
     const proxyConfiguration = await Apify.createProxyConfiguration({
         groups: ['RESIDENTIAL'],
         countryCode: 'US',
@@ -19,14 +18,14 @@ Apify.main(async () => {
         requestList,
         requestQueue,
         proxyConfiguration,
-        useSessionPool: true, 
+        useSessionPool: true,
         sessionPoolOptions: {
-            maxPoolSize: 100
+            maxPoolSize: 100,
         },
         launchContext: {
             launchOptions: {
                 headless: false,
-            }
+            },
         },
         handlePageFunction: async (context) => {
             const { url, userData: { label } } = context.request;
@@ -43,6 +42,6 @@ Apify.main(async () => {
             }
         },
     });
-    
+
     await crawler.run();
 });
