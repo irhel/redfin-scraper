@@ -1,10 +1,8 @@
-const { AutoscaledPool } = require('apify');
 const Apify = require('apify');
 
 const { selectors } = require('./const');
 
-const { utils: { puppeteer, log } } = Apify;
-
+const { utils: { log, puppeteer } } = Apify;
 let totalPropertiesScraped = 0;
 
 const createAbsoluteUrl = (relativeUrl) => {
@@ -18,60 +16,76 @@ const addUrlsToRequestQueue = async (urls, label, requestQueue) => {
         });
     }
 };
+/**
+ * Wait for the search box to be available and then inserts the location and extracts the pagination URLs.
+ *
+ * @param {Apify.PuppeteerHandlePageFunctionParam} param0
+ * @param {Apify.RequestQueue} requestQueue
+ * @param {string} location
+ */
 exports.handleStart = async ({ page }, requestQueue, location) => {
-    try {
-        await page.type(selectors.INPUT_BOX, location);
-        await page.click(selectors.SEARCH_BUTTON);
-        await page.waitForSelector('.goToPage');
-        await puppeteer.injectJQuery(page);
+    await page.waitForSelector(`${selectors.INPUT_BOX}:not([disabled])`, { timeout: 60000 });
+    await page.type(selectors.INPUT_BOX, location);
+    await page.waitForSelector(selectors.SEARCH_BUTTON, { timeout: 60000 });
+    await Promise.all([
+        page.waitForNavigation({ timeout: 60000 }),
+        page.click('button.SearchButton'),
+    ]);
+    await puppeteer.injectJQuery(page);
 
-        const paginationUrls = (await page.evaluate((selector) => {
-            return $(selector).map((index, element) => $(element).attr('href')).get();
-        }, selectors.PROPERTY_LISTING)).map((relativePaginationUrl) => createAbsoluteUrl(relativePaginationUrl));
-        log.info(`Number of pagination URLs that will be added ${paginationUrls.length}`);
+    await page.waitForSelector('.goToPage');
+    await page.waitForFunction(() => !!window.jQuery);
+    const paginationUrls = (await page.evaluate((selector) => {
+        return $(selector).map((index, element) => $(element).attr('href')).get();
+    }, selectors.PROPERTY_LISTING));
 
-        await addUrlsToRequestQueue(paginationUrls, 'PROPERTY_LISTINGS', requestQueue);
-    } catch (error) {
-        log.info(`Error: ${error}`);
-    }
+    log.info(`Number of pagination URLs that will be added ${paginationUrls.length}`);
+    await addUrlsToRequestQueue(paginationUrls.map(createAbsoluteUrl), 'PROPERTY_LISTINGS', requestQueue);
 };
 
 exports.handlePropertyListings = async ({ page }, requestQueue) => {
-    try {
-        await page.waitForSelector('.HomeViews');
-        await puppeteer.injectJQuery(page);
-        const propertyUrls = (await page.evaluate((selector) => {
-            return $(selector).map((index, element) => $(element).attr('href')).get();
-        }, selectors.PROPERTY)).map((relativePropertyUrl) => createAbsoluteUrl(relativePropertyUrl));
-        log.info(`Number of property URLs that will be added ${propertyUrls.length}`);
-        await addUrlsToRequestQueue(propertyUrls, 'PROPERTY', requestQueue);
-    } catch (error) {
-        log.info(`Error: ${error}`);
-    }
+    await page.waitForSelector('.HomeViews');
+    await puppeteer.injectJQuery(page);
+    const propertyUrls = (await page.evaluate((selector) => {
+        return $(selector).map((index, element) => $(element).attr('href')).get();
+    }, selectors.PROPERTY)).map(createAbsoluteUrl);
+
+    log.info(`Number of property URLs that will be added ${propertyUrls.length}`);
+
+    await addUrlsToRequestQueue(propertyUrls, 'PROPERTY', requestQueue);
 };
 
-exports.handleProperty = async ({ page }, maxItems) => {
+/**
+ *
+ * @param {Apify.PuppeteerHandlePageFunctionParam} param0
+ * @param {number} maxItems
+ * @returns
+ */
+exports.handleProperty = async ({ page, crawler }, maxItems) => {
     if (totalPropertiesScraped === maxItems && maxItems !== 0) {
         log.info(`Scraped ${maxItems} number of properties. Exiting gracefully.`);
-        await AutoscaledPool.abort();
+        await crawler.autoscaledPool.abort();
+        return;
     }
     await puppeteer.injectJQuery(page);
-    const propertyData = (await page.evaluate((price, beds, baths, squareFooatage, addionalInfoHeaders, additionalInfoContent) => {
-        const extraInfoHeaders = $(addionalInfoHeaders).map((index, element) => $(element).text()).get();
-        const extraInfoContent = $(additionalInfoContent).map((index, element) => $(element).text()).get();
+    const propertyData = await page.evaluate(({ PROPERTY_PRICE, PROPERTY_BEDS, PROPERTY_BATHS, PROPERTY_SQUARE_FOOTAGE,
+        PROPERTY_ADDITIONAL_INFO_HEADERS, PROPERTY_ADDITIONAL_INFO_CONTENT }) => {
+        const fnText = (_, element) => $(element).text();
+
+        const extraInfoHeaders = $(PROPERTY_ADDITIONAL_INFO_HEADERS).map(fnText).get();
+        const extraInfoContent = $(PROPERTY_ADDITIONAL_INFO_CONTENT).map(fnText).get();
+
         const preparedPropertyData = {
-            propertyPrice: $(price).text(),
-            propertyBeds: $(beds).text(),
-            propertyBaths: $(baths).text(),
-            propertySquareFootage: $(squareFooatage).text(),
+            propertyPrice: $(PROPERTY_PRICE).text(),
+            propertyBeds: $(PROPERTY_BEDS).text(),
+            propertyBaths: $(PROPERTY_BATHS).text(),
+            propertySquareFootage: $(PROPERTY_SQUARE_FOOTAGE).text(),
         };
-        for (let i = 0; i < extraInfoHeaders.length; i++) {
-            preparedPropertyData[[extraInfoHeaders[i]]] = extraInfoContent[i];
+        for (const [i, header] of extraInfoHeaders.entries()) {
+            preparedPropertyData[header] = extraInfoContent[i];
         }
         return preparedPropertyData;
-    }, selectors.PROPERTY_PRICE, selectors.PROPERTY_BEDS, selectors.PROPERTY_BATHS,
-    selectors.PROPERTY_SQUARE_FOOTAGE, selectors.PROPERTY_ADDITIONAL_INFO_HEADERS, selectors.PROPERTY_ADDITIONAL_INFO_CONTENT));
-    // Ignore empty lots
+    }, selectors);
 
     await Apify.pushData(propertyData);
     log.info('Property data that was extracted:', propertyData);

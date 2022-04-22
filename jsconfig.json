@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": false,
+    "alwaysStrict": true,
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "checkJs": true,
+    "esModuleInterop": false,
+    "target": "es2021",
+    "module": "ESNext",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "./src/*.js"
+  ]
+}
