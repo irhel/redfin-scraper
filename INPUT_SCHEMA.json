@@ -31,6 +31,13 @@
       "editor": "proxy",
       "sectionCaption": "Proxy configuration",
       "sectionDescription": "Choose which proxies to use."
+    },
+    "category" : {
+      "title": "Category", 
+      "type": "string", 
+      "description": "Category of the real-estate to be scraped.",
+      "prefill": "forSale", 
+      "editor": "textfield"
     }
   },
   "required": [
