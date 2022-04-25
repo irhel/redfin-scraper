@@ -9,7 +9,7 @@ Apify.main(async () => {
 
     const requestQueue = await Apify.openRequestQueue();
 
-    const { location, maxItems, proxyConfig } = await Apify.getInput();
+    const { proxyConfig, location, maxItems, category } = await Apify.getInput();
 
     const proxyConfiguration = await Apify.createProxyConfiguration(proxyConfig);
 
@@ -40,11 +40,11 @@ Apify.main(async () => {
 
             switch (label) {
                 case 'PROPERTY':
-                    return handleProperty(context, maxItems);
+                    return handleProperty(context, { maxItems });
                 case 'PROPERTY_LISTINGS':
                     return handlePropertyListings(context, requestQueue);
                 default:
-                    return handleStart(context, requestQueue, location);
+                    return handleStart(context, requestQueue, { location, category });
             }
         },
     });

@@ -10,6 +10,8 @@ const selectors = {
     PROPERTY_ADDITIONAL_INFO_HEADERS: '.house-info .keyDetail .header',
     PROPERTY_ADDITIONAL_INFO_CONTENT: '.house-info .keyDetail .content',
     PROPERTY_LISTING: 'a.goToPage',
+    RENT_TAB: '.Tab a[data-rf-test-name="rentTab"]',
+    PROPERTY_IMAGE: '.InlinePhotoPreview img',
 };
 
 module.exports = { selectors };
