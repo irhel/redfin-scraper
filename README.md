@@ -22,7 +22,7 @@ Some of the use-cases for scraping real-estate data are:
 - Minimization of risk when pricing properties 
 
 
-- Forecasting the market in the future
+- Market forecast
 
 - Targeted real-estate ads for a specific geographical location
 
