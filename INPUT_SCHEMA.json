@@ -18,29 +18,37 @@
       "default": 0,
       "prefill": 100
     },
-    "proxyConfig": {
-      "title": "Proxy configuration",
-      "type": "object",
-      "description": "This is required if you want to use Apify Proxy.",
-      "prefill": {
-        "useApifyProxy": true
-      },
-      "default": {
-        "useApifyProxy": true
-      },
-      "editor": "proxy",
-      "sectionCaption": "Proxy configuration",
-      "sectionDescription": "Choose which proxies to use."
-    },
     "category" : {
       "title": "Category", 
       "type": "string", 
       "description": "Category of the real-estate to be scraped.",
       "prefill": "forSale", 
-      "editor": "textfield"
+      "editor": "select",
+      "enum": [
+          "forSale",
+          "forRent"
+      ]
+    },
+    "proxyConfig": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "This is required if you want to use Apify Proxy.",
+      "prefill": {
+        "useApifyProxy": true,
+         "apifyProxyGroups": ["SHADER"],
+         "countryCode": "US"
+      },
+      "default": {
+        "useApifyProxy": true,
+        "apifyProxyGroups": ["SHADER"],
+        "countryCode": "US"
+      },
+      "editor": "proxy",
+      "sectionCaption": "Proxy configuration",
+      "sectionDescription": "Choose which proxies to use."
     }
   },
   "required": [
-    "location", "maxItems", "proxyConfig"
+    "location"
   ]
 }
