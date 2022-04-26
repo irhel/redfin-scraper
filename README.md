@@ -17,7 +17,7 @@ Some of the property information that it scrapes:
 
 Some of the use-cases for scraping real-estate data are:
 
-- Allows real-estate agents to understand the market better
+- Allowing real-estate agents to understand the market better
 
 - Minimization of risk when pricing properties 
 
@@ -46,7 +46,7 @@ To scrape Redfin wtih the [Redfin scraper](https://apify.com/irhel/redfin-scrape
 
 ### How much will it cost to scrape Redfin?
 
-Apify provides `5$/month` free platform credits the Apify Free plan. That's roughly `1250` scraped properties for free per month. However, if you need to regularly scrape more results Apify has other [subcription plans](https://apify.com/pricing) as well. We recommend the Personal Plan for a cost of `49$/month` which which you can scrape roughly `12,500` properties per month.
+Apify provides `5$/month` free platform credits the Apify Free plan. That's roughly `1250` scraped properties for free per month. However, if you need to regularly scrape more results Apify has other [subcription plans](https://apify.com/pricing) as well. We recommend the Personal Plan for a cost of `49$/month` with which you can scrape roughly `12,500` properties per month.
 
 If your scraping needs are even greater you can get the Apify Team Plan to scrape roughly `125K` properties per month. 
 
